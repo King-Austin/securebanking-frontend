@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { accountAPI, transactionAPI } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -13,6 +14,9 @@ const Dashboard = () => {
   const [error, setError] = useState('');
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Set page title
+  usePageTitle('Dashboard');
 
   useEffect(() => {
     fetchDashboardData();

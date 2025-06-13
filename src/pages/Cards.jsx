@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Cards() {
+  // Set page title
+  usePageTitle('My Cards');
+
   const [cards, setCards] = useState([
     {
       id: 1,

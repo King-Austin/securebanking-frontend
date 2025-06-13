@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import { transactionAPI } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Set page title
+  usePageTitle('Transaction History');
 
   useEffect(() => {
     fetchTransactions();

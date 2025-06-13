@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -19,6 +20,9 @@ const Register = () => {
 
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  // Set page title
+  usePageTitle('Create Account');
 
   const handleChange = (e) => {
     setFormData({

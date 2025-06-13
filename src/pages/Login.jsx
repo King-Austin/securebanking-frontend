@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,9 @@ const Login = () => {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  // Set page title
+  usePageTitle('Login');
 
   const handleChange = (e) => {
     setFormData({

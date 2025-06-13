@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import { accountAPI } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [balanceVisible, setBalanceVisible] = useState(true);
+
+  // Set page title
+  usePageTitle('My Accounts');
 
   useEffect(() => {
     fetchAccounts();

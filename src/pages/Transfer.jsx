@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { accountAPI, transactionAPI } from '../services/api';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Transfer() {
   const [accounts, setAccounts] = useState([]);
@@ -13,6 +14,9 @@ export default function Transfer() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+
+  // Set page title
+  usePageTitle('Transfer Money');
 
   useEffect(() => {
     fetchAccounts();
