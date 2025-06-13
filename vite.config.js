@@ -16,6 +16,39 @@ export default defineConfig(({ command, mode }) => {
       __BUILD_DATE__: JSON.stringify(new Date().toISOString()),
     },
     
+    // Resolve configuration
+    resolve: {
+      alias: {
+        '@': resolve(__dirname, 'src'),
+        '@components': resolve(__dirname, 'src/components'),
+        '@pages': resolve(__dirname, 'src/pages'),
+        '@services': resolve(__dirname, 'src/services'),
+        '@utils': resolve(__dirname, 'src/utils'),
+        '@config': resolve(__dirname, 'src/config'),
+      },
+    },
+    
+    // Optimize dependencies
+    optimizeDeps: {
+      include: [
+        'react', 
+        'react-dom', 
+        'react-router-dom', 
+        'axios', 
+        'bootstrap',
+        'date-fns'
+      ],
+    },
+    
+    // CSS configuration
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: `@import "bootstrap/scss/bootstrap";`,
+        },
+      },
+    },
+    
     // Build configuration
     build: {
       outDir: 'dist',
@@ -25,7 +58,7 @@ export default defineConfig(({ command, mode }) => {
         output: {
           manualChunks: {
             vendor: ['react', 'react-dom', 'react-router-dom'],
-            ui: ['bootstrap', 'bootstrap-icons'],
+            ui: ['bootstrap'],
             utils: ['axios', 'date-fns'],
           },
         },
@@ -33,6 +66,7 @@ export default defineConfig(({ command, mode }) => {
       // Optimize for deployment
       target: 'es2015',
       chunkSizeWarningLimit: 1000,
+      assetsDir: 'assets',
     },
     
     // Server configuration
@@ -49,24 +83,7 @@ export default defineConfig(({ command, mode }) => {
       cors: true,
     },
     
-    // Path resolution
-    resolve: {
-      alias: {
-        '@': resolve(__dirname, 'src'),
-        '@components': resolve(__dirname, 'src/components'),
-        '@pages': resolve(__dirname, 'src/pages'),
-        '@services': resolve(__dirname, 'src/services'),
-        '@utils': resolve(__dirname, 'src/utils'),
-        '@config': resolve(__dirname, 'src/config'),
-      },
-    },
-    
     // Environment variables
     envPrefix: 'VITE_',
-    
-    // Optimization
-    optimizeDeps: {
-      include: ['react', 'react-dom', 'react-router-dom', 'axios', 'bootstrap'],
-    },
   }
 })

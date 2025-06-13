@@ -3,14 +3,16 @@ services:
   - type: web
     name: securecipher-frontend
     env: static
-    buildCommand: npm ci && npm run build:production
+    buildCommand: |
+      npm ci && 
+      npm run build:production
     staticPublishPath: ./dist
     pullRequestPreviewsEnabled: true
     
     # Environment Variables for Production
     envVars:
       - key: VITE_API_URL
-        value: https://your-backend-api-url.onrender.com/api
+        value: https://securecipher-banking-api.onrender.com/api
       - key: VITE_APP_NAME
         value: SecureCipher Bank
       - key: VITE_APP_VERSION
@@ -27,6 +29,8 @@ services:
         value: NGN
       - key: VITE_CURRENCY_SYMBOL
         value: ₦
+      - key: NODE_ENV
+        value: production
         
     # Custom Headers for Security
     headers:
