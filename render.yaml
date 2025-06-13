@@ -1,0 +1,55 @@
+# Render Blueprint for SecureCipher Banking Frontend
+services:
+  - type: web
+    name: securecipher-frontend
+    env: static
+    buildCommand: npm ci && npm run build:production
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: true
+    
+    # Environment Variables for Production
+    envVars:
+      - key: VITE_API_URL
+        value: https://your-backend-api-url.onrender.com/api
+      - key: VITE_APP_NAME
+        value: SecureCipher Bank
+      - key: VITE_APP_VERSION
+        value: 1.0.0
+      - key: VITE_NODE_ENV
+        value: production
+      - key: VITE_ENABLE_DEBUG
+        value: false
+      - key: VITE_ENABLE_ANALYTICS
+        value: true
+      - key: VITE_ENABLE_ERROR_REPORTING
+        value: true
+      - key: VITE_DEFAULT_CURRENCY
+        value: NGN
+      - key: VITE_CURRENCY_SYMBOL
+        value: ₦
+        
+    # Custom Headers for Security
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=()
+        
+    # Routes for SPA
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+        
+    # Custom domains (update with your domain)
+    domains:
+      - your-domain.com
+      - www.your-domain.com

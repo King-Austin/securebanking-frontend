@@ -6,8 +6,16 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:production": "vite build --mode production",
+    "build:staging": "vite build --mode staging",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview",
+    "preview:production": "vite preview --mode production",
+    "start": "vite preview --port $PORT --host 0.0.0.0",
+    "clean": "rm -rf dist node_modules/.vite",
+    "typecheck": "tsc --noEmit",
+    "analyze": "vite build --mode analyze"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
