@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+html {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+/* Custom Banking Theme */
+:root {
+  --bs-primary: #2563eb;
+  --bs-primary-rgb: 37, 99, 235;
+  --bs-secondary: #6b7280;
+  --bs-secondary-rgb: 107, 114, 128;
+  --bs-success: #10b981;
+  --bs-success-rgb: 16, 185, 129;
+  --bs-warning: #f59e0b;
+  --bs-warning-rgb: 245, 158, 11;
+  --bs-danger: #ef4444;
+  --bs-danger-rgb: 239, 68, 68;
+  --bs-info: #3b82f6;
+  --bs-info-rgb: 59, 130, 246;
+  --bs-dark: #1e3a8a;
+  --bs-dark-rgb: 30, 58, 138;
+}
+
+/* Custom component styles */
+.card-banking {
+  border: none;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
+}
+
+.card-banking:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.card-banking[style*="cursor: pointer"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.stat-card {
+  border: none;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  transition: all 0.15s ease-in-out;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.nav-link-custom {
+  color: #6b7280;
+  text-decoration: none;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease-in-out;
+  display: flex;
+  align-items: center;
+}
+
+.nav-link-custom:hover {
+  color: var(--bs-primary);
+  background-color: rgba(37, 99, 235, 0.1);
+}
+
+.nav-link-custom.active {
+  color: var(--bs-primary);
+  background-color: rgba(37, 99, 235, 0.1);
+  font-weight: 500;
+}
+
+.banking-gradient {
+  background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-dark) 100%);
+}
+
+.btn-banking {
+  background: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: white;
+  font-weight: 500;
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-banking:hover {
+  background: var(--bs-dark);
+  border-color: var(--bs-dark);
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Enhanced hover effects for clickable elements */
+.list-group-item[style*="cursor: pointer"]:hover {
+  background-color: rgba(var(--bs-primary-rgb), 0.05);
+  transform: translateX(4px);
+  transition: all 0.15s ease-in-out;
+}
+
+.list-group-item {
+  transition: all 0.15s ease-in-out;
+}
+
+/* Responsive sidebar */
+.sidebar {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar-open {
+  transform: translateX(0);
+}
+
+/* Sidebar responsive layout */
+.sidebar {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.sidebar-open {
+  transform: translateX(0);
+}
+
+/* Show sidebar on large screens */
+@media (min-width: 992px) {
+  .sidebar {
+    transform: translateX(0) !important;
+  }
+  
+  .main-content {
+    margin-left: 16rem !important;
+  }
+}
