@@ -36,6 +36,7 @@ export default defineConfig(({ command, mode }) => {
         'react-router-dom', 
         'axios', 
         'bootstrap',
+        'bootstrap-icons',
         'date-fns'
       ],
     },
