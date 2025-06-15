@@ -113,8 +113,17 @@ export const beneficiaryAPI = {
 // Card API calls
 export const cardAPI = {
   getCards: () => api.get('/cards/'),
+  getCard: (cardId) => api.get(`/cards/${cardId}/`),
+  createCard: (cardData) => api.post('/cards/', cardData),
+  updateCard: (cardId, cardData) => api.put(`/cards/${cardId}/`, cardData),
+  deleteCard: (cardId) => api.delete(`/cards/${cardId}/`),
   blockCard: (id) => api.post(`/cards/${id}/block_card/`),
   unblockCard: (id) => api.post(`/cards/${id}/unblock_card/`),
+  toggleCardStatus: (cardId, status) => api.patch(`/cards/${cardId}/status/`, { status }),
+  setPin: (cardId, pin) => api.patch(`/cards/${cardId}/pin/`, { pin }),
+  getCardTransactions: (cardId, params = {}) => api.get(`/cards/${cardId}/transactions/`, { params }),
+  reportLostStolen: (cardId, reason) => api.post(`/cards/${cardId}/report/`, { reason }),
+  requestNewCard: (cardData) => api.post('/cards/request/', cardData),
 };
 
 // Account types and categories

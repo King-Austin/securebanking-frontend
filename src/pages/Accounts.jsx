@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { accountAPI } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { formatCurrency, formatDate } from '../utils/helpers';
+import { CURRENCY_CONFIG } from '../config/environment';
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState([]);
@@ -24,22 +26,6 @@ export default function Accounts() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 2
-    }).format(amount || 0).replace('NGN', '₦');
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
-    });
   };
 
   if (loading) {
@@ -121,7 +107,7 @@ export default function Accounts() {
                   </div>
                   <div className="col-6">
                     <strong>Currency:</strong><br />
-                    USD
+                    {CURRENCY_CONFIG.code}
                   </div>
                   <div className="col-6">
                     <strong>Branch:</strong><br />

@@ -88,4 +88,11 @@ export const {
   SUPPORT_PHONE,
 } = config;
 
+// Currency configuration object
+export const CURRENCY_CONFIG = {
+  code: DEFAULT_CURRENCY,
+  symbol: CURRENCY_SYMBOL,
+  locale: 'en-NG'
+};
+
 export default config;
