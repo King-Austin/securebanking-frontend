@@ -1,16 +1,32 @@
 // Utility functions for the banking app
+import { CURRENCY_CONFIG } from '../config/environment.js';
 
 /**
- * Format currency in Nigerian Naira
+ * Format currency using the configured currency
  * @param {number} amount - The amount to format
- * @returns {string} - Formatted currency string with ₦ symbol
+ * @returns {string} - Formatted currency string with configured symbol
  */
 export const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-NG', {
+  if (amount === null || amount === undefined || isNaN(amount)) {
+    return `${CURRENCY_CONFIG.symbol}0.00`;
+  }
+  
+  return new Intl.NumberFormat(CURRENCY_CONFIG.locale, {
     style: 'currency',
-    currency: 'NGN',
-    minimumFractionDigits: 2
-  }).format(amount || 0).replace('NGN', '₦');
+    currency: CURRENCY_CONFIG.code,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(Number(amount));
+};
+
+/**
+ * Parse currency string to number
+ * @param {string} currencyString - Currency string to parse
+ * @returns {number} - Parsed number
+ */
+export const parseCurrency = (currencyString) => {
+  if (!currencyString) return 0;
+  return parseFloat(currencyString.replace(/[^\d.-]/g, ''));
 };
 
 /**

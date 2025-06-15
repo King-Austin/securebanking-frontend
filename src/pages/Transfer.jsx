@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { accountAPI, transactionAPI } from '../services/api';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { formatCurrency } from '../utils/helpers';
+import { CURRENCY_CONFIG } from '../config/environment';
+import LoadingSpinner, { ErrorMessage } from '../components/LoadingSpinner';
 
 export default function Transfer() {
   const [accounts, setAccounts] = useState([]);
@@ -12,6 +15,7 @@ export default function Transfer() {
     transfer_type: 'internal'
   });
   const [loading, setLoading] = useState(false);
+  const [accountsLoading, setAccountsLoading] = useState(true);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
@@ -24,10 +28,15 @@ export default function Transfer() {
 
   const fetchAccounts = async () => {
     try {
+      setAccountsLoading(true);
+      setError('');
       const response = await accountAPI.getAccounts();
       setAccounts(response.data.results || response.data);
     } catch (error) {
       console.error('Error fetching accounts:', error);
+      setError('Failed to load accounts. Please refresh the page.');
+    } finally {
+      setAccountsLoading(false);
     }
   };
 
@@ -97,14 +106,6 @@ export default function Transfer() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 2
-    }).format(amount || 0).replace('NGN', '₦');
   };
 
   const selectedFromAccount = accounts.find(acc => acc.id.toString() === transferData.from_account);
@@ -212,10 +213,10 @@ export default function Transfer() {
 
                   <div className="col-md-6">
                     <label htmlFor="amount" className="form-label fw-medium">
-                      Amount
+                      Amount ({CURRENCY_CONFIG.symbol})
                     </label>
                     <div className="input-group">
-                      <span className="input-group-text">$</span>
+                      <span className="input-group-text">{CURRENCY_CONFIG.symbol}</span>
                       <input
                         type="number"
                         id="amount"

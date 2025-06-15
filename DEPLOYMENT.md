@@ -26,7 +26,7 @@ banking-frontend/
 ### Development Environment
 The `.env` file contains your local development configuration:
 ```bash
-VITE_API_URL=http://127.0.0.1:8000/api
+VITE_API_URL=http://127.0.0.1:8000/api or you preferred api
 VITE_NODE_ENV=development
 VITE_ENABLE_DEBUG=true
 # ... other variables
