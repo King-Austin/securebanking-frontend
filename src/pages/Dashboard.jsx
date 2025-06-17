@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { accountAPI, transactionAPI } from '../services/api';
+import { useCrypto } from '../contexts/CryptoContext';
+import bankingService from '../services/bankingService.js';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { usePageTitle } from '../hooks/usePageTitle';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { cryptoReady, keyFingerprint } = useCrypto();
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
@@ -28,12 +30,12 @@ const Dashboard = () => {
       setError('');
       
       const [accountsRes, transactionsRes] = await Promise.all([
-        accountAPI.getAccounts().catch(err => ({ data: { results: [] } })),
-        transactionAPI.getTransactions({ limit: 5, ordering: '-created_at' }).catch(err => ({ data: { results: [] } }))
+        bankingService.getAccounts().catch(err => ({ results: [] })),
+        bankingService.getTransactions({ limit: 5, ordering: '-created_at' }).catch(err => ({ results: [] }))
       ]);
       
-      setAccounts(accountsRes.data.results || accountsRes.data || []);
-      setRecentTransactions((transactionsRes.data.results || transactionsRes.data || []).slice(0, 5));
+      setAccounts(accountsRes.results || accountsRes || []);
+      setRecentTransactions((transactionsRes.results || transactionsRes || []).slice(0, 5));
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       setError('Failed to load dashboard data. Please check your connection and try again.');

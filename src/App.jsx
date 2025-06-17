@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { CryptoProvider, useCrypto } from './contexts/CryptoContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -12,6 +13,7 @@ import Profile from './pages/Profile';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
+import CryptoOnboarding from './components/CryptoOnboarding';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -83,12 +85,56 @@ function AppRoutes() {
   );
 }
 
+// Crypto-protected App Component
+function CryptoApp() {
+  const { cryptoReady, cryptoLoading, completeCryptoSetup } = useCrypto();
+
+  const handleCryptoComplete = async (success) => {
+    if (success) {
+      await completeCryptoSetup();
+    }
+  };
+
+  // Show loading spinner during initial crypto check
+  if (cryptoLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        flexDirection: 'column',
+        fontFamily: 'Inter, system-ui, sans-serif'
+      }}>
+        <div style={{ fontSize: '3rem', marginBottom: '20px' }}>🔐</div>
+        <h2>SecureCipher Banking</h2>
+        <p>Loading cryptographic security...</p>
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  // Show crypto onboarding if not ready
+  if (!cryptoReady) {
+    return <CryptoOnboarding onComplete={handleCryptoComplete} />;
+  }
+
+  // Show main app once crypto is ready
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  );
+}
+
 function App() {
   return (
     <ErrorBoundary showDetails={import.meta.env.DEV}>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
+      <CryptoProvider>
+        <CryptoApp />
+      </CryptoProvider>
     </ErrorBoundary>
   );
 }
