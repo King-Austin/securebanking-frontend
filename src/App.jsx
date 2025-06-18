@@ -14,6 +14,7 @@ import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
 import CryptoOnboarding from './components/CryptoOnboarding';
+import ConnectionStatus from './components/ConnectionStatus';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -40,6 +41,8 @@ const PublicRoute = ({ children }) => {
 function AppRoutes() {
   return (
     <Router>
+      {/* Add ConnectionStatus at the top to monitor backend connectivity */}
+      <ConnectionStatus />
       <Routes>
         {/* Public Routes */}
         <Route 

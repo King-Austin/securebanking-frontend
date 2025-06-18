@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCrypto } from '../contexts/CryptoContext';
 import bankingService from '../services/bankingService.js';
+import { testBackendConnection, forceApiCall } from '../services/api.js';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { usePageTitle } from '../hooks/usePageTitle';
 
@@ -68,12 +69,53 @@ const Dashboard = () => {
 
   const totalBalance = accounts.reduce((sum, account) => sum + parseFloat(account.balance || 0), 0);
 
+  // Test backend connection function
+  const handleTestBackend = async () => {
+    try {
+      await testBackendConnection();
+      alert('✅ Backend connection successful! Check console and backend logs.');
+    } catch (error) {
+      alert('❌ Backend connection failed: ' + error.message);
+    }
+  };
+
+  // Force API call function
+  const handleForceApiCall = async () => {
+    try {
+      await forceApiCall('/health/');
+      alert('✅ Health check successful! Check backend logs.');
+    } catch (error) {
+      alert('❌ Health check failed: ' + error.message);
+    }
+  };
+
   if (loading) {
     return <LoadingSpinner />;
   }
 
   return (
     <div className="container-fluid">
+      {/* Debug Panel - Remove after fixing backend connectivity */}
+      <div className="alert alert-info mb-4" role="alert">
+        <h6 className="alert-heading">🔧 Debug Panel - Backend Testing</h6>
+        <p className="mb-2">Use these buttons to test backend connectivity and generate logs:</p>
+        <div className="d-flex gap-2">
+          <button 
+            className="btn btn-sm btn-primary" 
+            onClick={handleTestBackend}
+          >
+            🧪 Test Backend Connection
+          </button>
+          <button 
+            className="btn btn-sm btn-success" 
+            onClick={handleForceApiCall}
+          >
+            ❤️ Health Check
+          </button>
+        </div>
+        <small className="text-muted">These bypass crypto and hit your backend directly.</small>
+      </div>
+
       {/* Header with Refresh Button */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="h2 fw-bold text-dark mb-0">Dashboard</h1>

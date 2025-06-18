@@ -8,7 +8,8 @@ class SecureCipherEngine {
         this.dbName = "SecureCipherKeys";
         this.dbVersion = 1;
         this.keyStore = "keys";
-        this.initDB();
+        this.db = null;
+        this.dbReady = this.initDB();
     }
 
     /**
@@ -16,16 +17,29 @@ class SecureCipherEngine {
      * 
      */
     async initDB() {
+        if (this.db) {
+            return this.db;
+        }
+        
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(this.dbName, this.dbVersion);
             
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => {
+                console.error('❌ IndexedDB open failed:', request.error);
+                reject(request.error);
+            };
+            
+            request.onsuccess = () => {
+                this.db = request.result;
+                console.log('✅ IndexedDB initialized successfully');
+                resolve(this.db);
+            };
             
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
                 if (!db.objectStoreNames.contains(this.keyStore)) {
-                    db.createObjectStore(this.keyStore);
+                    const store = db.createObjectStore(this.keyStore);
+                    console.log('📁 Created keystore object store');
                 }
             };
         });
@@ -46,7 +60,7 @@ class SecureCipherEngine {
                 true,  // Extractable for storage
                 ["sign", "verify"]
             );
-            
+                
             await this.storeKeyPair(keyPair);
             console.log('✅ Key pair generated and stored successfully');
             return keyPair;
@@ -61,30 +75,98 @@ class SecureCipherEngine {
      */
     async storeKeyPair(keyPair) {
         try {
-            const db = await this.initDB();
-            const transaction = db.transaction([this.keyStore], "readwrite");
-            const store = transaction.objectStore(this.keyStore);
+            console.log("🔐 Starting key storage...");
             
-            // Export and store private key
+            // Export keys first (before creating transaction)
             const privateKeyJWK = await window.crypto.subtle.exportKey("jwk", keyPair.privateKey);
-            store.put(privateKeyJWK, "ecdsa_private_key");
-            
-            // Export and store public key
             const publicKeyJWK = await window.crypto.subtle.exportKey("jwk", keyPair.publicKey);
-            store.put(publicKeyJWK, "ecdsa_public_key");
+            const fingerprint = await this.generateFingerprint(publicKeyJWK);
             
-            // Store key metadata
-            store.put({
-                created: new Date().toISOString(),
-                algorithm: "ECDSA",
-                curve: "P-384",
-                fingerprint: await this.generateFingerprint(publicKeyJWK)
-            }, "key_metadata");
+            console.log("✅ Keys exported successfully");
             
-            return true;
+            // Now store in IndexedDB with proper transaction handling
+            const db = await this.initDB();
+            
+            return new Promise((resolve, reject) => {
+                let completed = false;
+                
+                // Create fresh transaction
+                const transaction = db.transaction([this.keyStore], "readwrite");
+                const store = transaction.objectStore(this.keyStore);
+                
+                // Transaction event handlers
+                transaction.oncomplete = () => {
+                    if (!completed) {
+                        completed = true;
+                        console.log("✅ Keys stored successfully in IndexedDB");
+                        resolve(true);
+                    }
+                };
+                
+                transaction.onerror = (event) => {
+                    if (!completed) {
+                        completed = true;
+                        console.error("❌ Transaction error:", event.target.error);
+                        reject(new Error(`Transaction failed: ${event.target.error?.message || 'Unknown error'}`));
+                    }
+                };
+                
+                transaction.onabort = (event) => {
+                    if (!completed) {
+                        completed = true;
+                        console.error("❌ Transaction aborted:", event.target.error);
+                        reject(new Error(`Transaction aborted: ${event.target.error?.message || 'Unknown reason'}`));
+                    }
+                };
+
+                try {
+                    // Store all data immediately while transaction is active
+                    const privateKeyOp = store.put(privateKeyJWK, "ecdsa_private_key");
+                    const publicKeyOp = store.put(publicKeyJWK, "ecdsa_public_key");
+                    const metadataOp = store.put({
+                        created: new Date().toISOString(),
+                        algorithm: "ECDSA",
+                        curve: "P-384",
+                        fingerprint: fingerprint
+                    }, "key_metadata");
+
+                    // Handle individual operation errors
+                    privateKeyOp.onerror = (event) => {
+                        if (!completed) {
+                            completed = true;
+                            console.error("❌ Private key storage failed:", event.target.error);
+                            reject(new Error("Private key storage failed"));
+                        }
+                    };
+
+                    publicKeyOp.onerror = (event) => {
+                        if (!completed) {
+                            completed = true;
+                            console.error("❌ Public key storage failed:", event.target.error);
+                            reject(new Error("Public key storage failed"));
+                        }
+                    };
+
+                    metadataOp.onerror = (event) => {
+                        if (!completed) {
+                            completed = true;
+                            console.error("❌ Metadata storage failed:", event.target.error);
+                            reject(new Error("Metadata storage failed"));
+                        }
+                    };
+
+                } catch (error) {
+                    if (!completed) {
+                        completed = true;
+                        console.error("❌ Error in store operations:", error);
+                        reject(new Error(`Store operation failed: ${error.message}`));
+                    }
+                }
+            });
+            
         } catch (error) {
             console.error("❌ Key storage failed:", error);
-            throw new Error("Failed to store cryptographic keys");
+            throw new Error("Failed to store cryptographic keys: " + error.message);
         }
     }
 

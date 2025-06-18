@@ -1,57 +1,51 @@
 import axios from 'axios';
-import { API_URL, API_TIMEOUT, ENABLE_DEBUG } from '../config/environment.js';
+import { config } from '../config/environment.js';
 
-// Create axios instance with environment configuration
+// Helper: Enforce port 5000 only
+function enforcePort5000(url) {
+  const allowed = /^https?:\/\/localhost:5000(\/|$)/;
+  if (!allowed.test(url)) {
+    throw new Error('All frontend API calls must go through middleware on port 5000.');
+  }
+}
+
+// Helper: Envelope wrapper
+export function createEnvelope({ encrypted_payload, iv, auth_tag, client_public_key }) {
+  return {
+    encrypted_payload,
+    iv,
+    auth_tag,
+    client_public_key,
+  };
+}
+
+// Create axios instance for middleware only
 const api = axios.create({
-  baseURL: API_URL,
-  timeout: API_TIMEOUT,
+  baseURL: config.API_URL, // always https://localhost:5000/api
+  timeout: config.API_TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
 });
 
-// Request interceptor to add auth token
+// Request interceptor: enforce port 5000 and wrap data in envelope
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers.Authorization = `Token ${token}`;
-    }
-    
-    // Debug logging in development
-    if (ENABLE_DEBUG) {
-      console.log('🚀 API Request:', {
-        method: config.method?.toUpperCase(),
-        url: config.url,
-        baseURL: config.baseURL,
-        headers: config.headers,
-        data: config.data,
-      });
+    enforcePort5000(config.baseURL);
+    // Only wrap POST/PUT/PATCH requests with data
+    if (['post', 'put', 'patch'].includes(config.method) && config.data && !config.data.encrypted_payload) {
+      // Assume data is already encrypted by the crypto engine
+      config.data = createEnvelope(config.data);
     }
     return config;
   },
-  (error) => {
-    if (ENABLE_DEBUG) {
-      console.error('❌ API Request Error:', error);
-    }
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Response interceptor to handle errors
 api.interceptors.response.use(
-  (response) => {
-    // Debug logging in development
-    if (ENABLE_DEBUG) {
-      console.log('✅ API Response:', {
-        status: response.status,
-        statusText: response.statusText,
-        url: response.config.url,
-        data: response.data,
-      });
-    }
-    return response;
-  },
+  (response) => response,
   (error) => {
     // Debug logging in development
     if (ENABLE_DEBUG) {
@@ -126,10 +120,46 @@ export const cardAPI = {
   requestNewCard: (cardData) => api.post('/cards/request/', cardData),
 };
 
-// Account types and categories
+// Reference data API calls
 export const referenceAPI = {
   getAccountTypes: () => api.get('/account-types/'),
   getTransactionCategories: () => api.get('/transaction-categories/'),
+};
+
+// Health check API calls
+export const healthAPI = {
+  checkHealth: () => api.get('/health/'),
+  checkStatus: () => api.get('/status/'),
+};
+
+// Test function to hit backend directly (bypasses crypto)
+export const testBackendConnection = async () => {
+  try {
+    console.log('Testing backend connection to:', API_URL);
+    const response = await api.get('/health/');
+    console.log('✅ Backend connection successful:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Backend connection failed:', error.message);
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+    }
+    throw error;
+  }
+};
+
+// Force API call function (useful for debugging)
+export const forceApiCall = async (endpoint = '/health/') => {
+  try {
+    console.log(`🔧 Force calling API endpoint: ${endpoint}`);
+    const response = await api.get(endpoint);
+    console.log('🎯 API call successful:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('💥 API call failed:', error);
+    throw error;
+  }
 };
 
 export default api;

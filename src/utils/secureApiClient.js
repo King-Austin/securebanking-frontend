@@ -9,7 +9,7 @@ class SecureApiClient {
     constructor() {
         this.cryptoEngine = new SecureCipherEngine();
         this.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-        this.middlewareURL = import.meta.env.VITE_MIDDLEWARE_URL || 'http://localhost:8001/api';
+        this.middlewareURL = import.meta.env.VITE_MIDDLEWARE_URL || 'http://localhost:8000/api';
         this.sessionToken = null;
         this.isInitialized = false;
     }
